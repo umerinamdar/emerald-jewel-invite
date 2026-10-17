@@ -1,5 +1,4 @@
 // All event instants are anchored to India Standard Time (+05:30), never the guest's clock zone.
-export const IST_ZONE = "Asia/Kolkata";
 
 export const couple = { one: "Aarav", two: "Anaya" };
 export const weddingAt = new Date("2027-02-14T18:30:00+05:30");
@@ -16,10 +15,19 @@ export const programme = [
   { name: "Reception", at: new Date("2027-02-15T20:00:00+05:30"), note: "Dinner and celebration in the marble hall" },
 ];
 
-export const fmtDate = (d: Date) =>
-  new Intl.DateTimeFormat("en-IN", { timeZone: IST_ZONE, weekday: "long", day: "numeric", month: "long", year: "numeric" }).format(d);
-export const fmtTime = (d: Date) =>
-  new Intl.DateTimeFormat("en-IN", { timeZone: IST_ZONE, hour: "numeric", minute: "2-digit", hour12: true }).format(d) + " IST";
+// Deterministic formatting (same on server and every browser), computed in IST (+05:30).
+const DAYS = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+const MONTHS = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+const ist = (d: Date) => new Date(d.getTime() + 330 * 60000);
+export const fmtDate = (d: Date) => {
+  const x = ist(d);
+  return `${DAYS[x.getUTCDay()]}, ${x.getUTCDate()} ${MONTHS[x.getUTCMonth()]} ${x.getUTCFullYear()}`;
+};
+export const fmtTime = (d: Date) => {
+  const x = ist(d);
+  const h = x.getUTCHours();
+  return `${h % 12 || 12}:${String(x.getUTCMinutes()).padStart(2, "0")} ${h < 12 ? "AM" : "PM"} IST`;
+};
 
 export function remaining(target: Date, now: number) {
   const ms = Math.max(0, target.getTime() - now);
