@@ -57,7 +57,7 @@ export function ScratchCard({ children }: { children: React.ReactNode }) {
     const ctx = c.getContext("2d")!;
     const { data } = ctx.getImageData(0, 0, c.width, c.height);
     let clear = 0, total = 0;
-    for (let i = 3; i < data.length; i += 64) { total++; if (data[i] < 40) clear++; }
+    for (let i = 3; i < data.length; i += 64) { total++; if ((data[i] ?? 255) < 40) clear++; }
     if (clear / total >= THRESHOLD) reveal();
   };
 
